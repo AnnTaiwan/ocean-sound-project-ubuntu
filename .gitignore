@@ -1,0 +1,6 @@
+dataset/*
+images/*
+spec_txt/*
+*.wav
+*.png
+*.txt
