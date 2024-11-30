@@ -8,28 +8,8 @@ std::vector<float> hanning_window(int window_Size) {
     return window;
 }
 
-// Function to apply Hamming window
-std::vector<float> apply_hamming_window(const std::vector<float>& signal) {
-    std::vector<float> windowed_signal(signal.size());
-    for (size_t i = 0; i < signal.size(); ++i) {
-        windowed_signal[i] = signal[i] * (0.54 - 0.46 * cos(2 * M_PI * i / (signal.size() - 1)));
-    }
-    return windowed_signal;
-}
-
-// used for creating mel_bank
-// Function to compute FFT frequencies
-std::vector<double> fft_frequencies(float sr, int n_fft) {
-    std::vector<double> freqs(n_fft / 2 + 1);
-    // Calculate the frequency for each FFT bin
-    for (int i = 0; i <= n_fft / 2; ++i) {
-        freqs[i] = i * sr / n_fft;
-    }
-    return freqs;
-}
-
 // Helper function to convert frequency to Mel scale
-float hz_to_mel(float freq, bool htk = false) {
+float hz_to_mel(float freq, bool htk) {
     if (htk) {
         // HTK Mel scale: 2595 * log10(1 + freq / 700)
         return 2595.0f * std::log10(1.0f + freq / 700.0f);
@@ -51,7 +31,7 @@ float hz_to_mel(float freq, bool htk = false) {
 }
 
 // Helper function to convert Mel scale to frequency
-float mel_to_hz(float mel, bool htk = false) {
+float mel_to_hz(float mel, bool htk) {
     if (htk) {
         // HTK Mel scale: 700 * (10^(mel / 2595) - 1)
         return 700.0f * (std::pow(10.0f, mel / 2595.0f) - 1.0f);
@@ -69,44 +49,6 @@ float mel_to_hz(float mel, bool htk = false) {
         }
 
         return freqs;
-    }
-}
-
-// Helper function to generate Mel frequencies
-std::vector<double> mel_frequencies(int n_mels, float fmin, float fmax, bool htk) {
-    std::vector<double> mels(n_mels);
-    // Calculate the minimum and maximum Mel frequencies
-    float min_mel = hz_to_mel(fmin, htk);
-    float max_mel = hz_to_mel(fmax, htk);
-    // Calculate the step size between Mel frequencies
-    float mel_step = (max_mel - min_mel) / (n_mels - 1);
-
-    // Generate Mel frequency points and convert back to Hz frequencies
-    for (int i = 0; i < n_mels; ++i) {
-        mels[i] = mel_to_hz(min_mel + i * mel_step, htk);
-    }
-
-    return mels;
-}
-
-// Function to normalize filter weights
-void normalize(std::vector<std::vector<float>>& weights, const std::string& norm) {
-    if (norm == "slaney") {
-        for (size_t i = 0; i < weights.size(); ++i) {
-            float sum = 0.0f;
-            // Calculate the sum of weights for each filter
-            for (size_t j = 0; j < weights[i].size(); ++j) {
-                sum += weights[i][j];
-            }
-            // Normalize the weights if the sum is not zero
-            if (sum != 0.0f) {
-                for (size_t j = 0; j < weights[i].size(); ++j) {
-                    weights[i][j] /= sum;
-                }
-            }
-        }
-    } else {
-        throw std::invalid_argument("Unsupported norm=" + norm);
     }
 }
 
@@ -149,9 +91,9 @@ std::vector<std::vector<float>> generate_mel_filter_bank(int sr, int n_fft, int 
 // Function to convert power spectrogram to dB scale
 std::vector<std::vector<float>> power_to_db(
     const std::vector<std::vector<float>>& mel_spec, 
-    float ref = 1.0f, 
-    float amin = 1e-10f, 
-    float top_db = 80.0f
+    float ref, 
+    float amin, 
+    float top_db
 ) {
     int num_frames = mel_spec.size();
     int n_mels = mel_spec[0].size();
@@ -260,17 +202,17 @@ std::vector<std::vector<float>> get_mel_spectrogram(const std::vector<float>& au
     int paddingLength = 0;
     std::vector<float> paddedSignal;
     if (CENTER) {
-    int pad_Length = fft_size / 2;
-    int audioLength = audio.size();
+        int pad_Length = fft_size / 2;
+        int audioLength = audio.size();
 
-    // Create a new padded signal vector with the required padding
-    paddedSignal.resize(pad_Length + audioLength + pad_Length, 0.0f);
+        // Create a new padded signal vector with the required padding
+        paddedSignal.resize(pad_Length + audioLength + pad_Length, 0.0f);
 
-    // Copy the original audio data into the new padded signal vector
-    std::copy(audio.begin(), audio.end(), paddedSignal.begin() + pad_Length);
-    } else {
-        // If no padding is required, just copy the original signal
-        paddedSignal = audio;
+        // Copy the original audio data into the new padded signal vector
+        std::copy(audio.begin(), audio.end(), paddedSignal.begin() + pad_Length);
+        } else {
+            // If no padding is required, just copy the original signal
+            paddedSignal = audio;
     }
 
     // Create a Hanning window of appropriate length

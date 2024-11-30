@@ -17,7 +17,7 @@
 #include <limits>
 
 #define SAMPLE_RATE 48000
-#define DURATION 60.0
+#define DURATION 10.0
 #define AUDIO_LEN (SAMPLE_RATE * DURATION)
 #define N_MELS 512
 #define N_FFT 4096
@@ -28,12 +28,8 @@
 #define CENTER true // used in STFT padded mode
 
 std::vector<float> hanning_window(int window_Size);
-std::vector<float> apply_hamming_window(const std::vector<float>& signal);
-std::vector<double> fft_frequencies(float sr, int n_fft);
 float hz_to_mel(float freq, bool htk = false);
 float mel_to_hz(float mel, bool htk = false);
-std::vector<double> mel_frequencies(int n_mels, float fmin, float fmax, bool htk);
-void normalize(std::vector<std::vector<float>>& weights, const std::string& norm);
 std::vector<std::vector<float>> generate_mel_filter_bank(int sr, int n_fft, int n_mels, float fmin, float fmax);
 std::vector<std::vector<float>> power_to_db(
     const std::vector<std::vector<float>>& mel_spec, 
@@ -47,7 +43,10 @@ std::vector<std::vector<GstFFTF32Complex>> compute_stft(
     int n_fft, 
     int hop_length);
 std::vector<std::vector<float>> compute_power_spectrogram(const std::vector<std::vector<GstFFTF32Complex>>& stft_matrix);
-std::vector<std::vector<float>> apply_mel_filter_bank;
+std::vector<std::vector<float>> apply_mel_filter_bank(
+    const std::vector<std::vector<float>>& power_spec, 
+    const std::vector<std::vector<float>>& mel_filter_bank
+);
 std::vector<std::vector<float>> get_mel_spectrogram(const std::vector<float>& audio, int sr);
 void write_mel_spectrogram_to_txt(const std::vector<std::vector<float>>& mel_spec, const std::string& filename);
 #endif

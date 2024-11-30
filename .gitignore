@@ -1,6 +1,9 @@
 dataset/*
 images/*
 spec_txt/*
+gstreamer_src/audio_for_test/*
 *.wav
 *.png
 *.txt
+*.so
+*.o

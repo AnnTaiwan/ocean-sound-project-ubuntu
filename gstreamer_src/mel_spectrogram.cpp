@@ -39,15 +39,34 @@ static GstFlowReturn mel_spec_chain(GstPad *pad, GstObject *parent, GstBuffer *b
 static void mel_spec_filter_class_init(MelSpecFilterClass *klass) {
     GstElementClass *element_class = GST_ELEMENT_CLASS(klass);
 
-    // Define the pad templates
-    sinkpad_template = gst_pad_template_new("sink", GST_PAD_SINK, GST_PAD_ALWAYS, gst_caps_new_simple("application/x-raw", "format", G_TYPE_STRING, "S16LE", NULL));
-    srcpad_template = gst_pad_template_new("src", GST_PAD_SRC, GST_PAD_ALWAYS, gst_caps_new_simple("application/x-raw", "format", G_TYPE_STRING, "S16LE", NULL));
+    // Set metadata for the element
+    gst_element_class_set_metadata(
+        element_class,
+        "Mel Spectrogram Filter",             // long name
+        "Filter/Audio",                       // classification
+        "Filter to compute Mel Spectrogram",  // description
+        "ann20021007@gmail.com"  // author
+    );
 
-    // Set up pads for the element
-    gst_element_class_add_pad_template(element_class,
-        sinkpad_template);
-    gst_element_class_add_pad_template(element_class,
-        srcpad_template);
+    // Define the pad templates, allow F32LE format, channels=1, rate=48000
+    sinkpad_template = gst_pad_template_new("sink", GST_PAD_SINK, GST_PAD_ALWAYS,
+        gst_caps_new_simple("audio/x-raw", 
+            "format", G_TYPE_STRING, "F32LE",  // Support F32LE format
+            "rate", G_TYPE_INT, 48000,         // Sample rate 48000
+            "channels", G_TYPE_INT, 1,         // Mono channel
+            NULL)
+    );
+    srcpad_template = gst_pad_template_new("src", GST_PAD_SRC, GST_PAD_ALWAYS,
+        gst_caps_new_simple("audio/x-raw", 
+            "format", G_TYPE_STRING, "F32LE",  // Support F32LE format
+            "rate", G_TYPE_INT, 48000,         // Sample rate 48000
+            "channels", G_TYPE_INT, 1,         // Mono channel
+            NULL)
+    );
+
+    // Add pad templates to the element
+    gst_element_class_add_pad_template(element_class, sinkpad_template);
+    gst_element_class_add_pad_template(element_class, srcpad_template);
 }
 
 // Function to initialize the filter instance
@@ -73,7 +92,6 @@ static GstFlowReturn mel_spec_chain(GstPad *pad, GstObject *parent, GstBuffer *b
     std::vector<float> audio_data(info.data, info.data + info.size);
 
     // Generate Mel spectrogram from the audio buffer
-    // Assuming get_mel_spectrogram accepts a std::vector of floats or modifies it
     std::vector<float> audio_data_copy(filter->audio_buffer.begin(), filter->audio_buffer.end());
     std::vector<std::vector<float>> mel_spectrogram = get_mel_spectrogram(audio_data_copy, SAMPLE_RATE);
 
@@ -101,12 +119,12 @@ static gboolean plugin_init(GstPlugin *plugin) {
 GST_PLUGIN_DEFINE(
     GST_VERSION_MAJOR,
     GST_VERSION_MINOR,
-    mel_spectrogram,
-    "Mel Spectrogram Plugin",
-    plugin_init,
-    "1.0.0",
-    "LGPL",
-    "GStreamer",
-    PACKAGE
+    mel_spectrogram,                     // Plugin name
+    "Plugin to compute Mel spectrogram", // Plugin description
+    plugin_init,                         // Plugin initialization function
+    "1.0.0",                             // Plugin version
+    "LGPL",                              // Plugin license
+    "Mel Spectrogram",                   // Plugin package name
+    "https://example.com/mel_spectrogram" // Plugin source URL
 )
 
