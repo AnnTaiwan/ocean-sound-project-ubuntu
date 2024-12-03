@@ -4,6 +4,7 @@
 #include <sstream>
 #include <string>
 #include <cmath>
+#include <cairo.h>
 
 #define SAMPLE_RATE 48000
 #define DURATION 60.0
@@ -308,15 +309,19 @@ void get_color_from_viridis(float value, float& r, float& g, float& b) {
     };
 	
     int idx = std::min(static_cast<int>(value * (N - 1)), N - 1);
-    r = viridis[idx][0];
-    g = viridis[idx][1];
-    b = viridis[idx][2];
+    r = viridis[idx][0] / 255;
+    g = viridis[idx][1] / 255;
+    b = viridis[idx][2] / 255;
 }
-void plot_mel_spectrogram(const std::vector<std::vector<float>>& mel_spec, std::vector<std::vector<float>>& arr_r, std::vector<std::vector<float>>& arr_g, std::vector<std::vector<float>>& arr_b) {
+void plot_mel_spectrogram(const std::vector<std::vector<float>>& mel_spec, const std::string& output_file) {
     int num_frames = mel_spec.size();
     int num_mels = mel_spec[0].size();
     int width = num_frames;
     int height = num_mels;
+
+    // Create a surface without extra margins
+    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+    cairo_t *cr = cairo_create(surface);
 
     // Find the min and max value for normalization
     float min_value = std::numeric_limits<float>::max();
@@ -340,37 +345,28 @@ void plot_mel_spectrogram(const std::vector<std::vector<float>>& mel_spec, std::
 
             float r, g, b;
             get_color_from_viridis(normalized_value, r, g, b);
-            arr_r[x][y] = r;
-            arr_g[x][y] = g;
-            arr_b[x][y] = b;
+            cairo_set_source_rgb(cr, r, g, b);
+            cairo_rectangle(cr, x, height - y - 1, 1, 1); // Directly fit the data
+            cairo_fill(cr);
         }
     }
-    
-    
-    /*  // use for testing
-    std::cout << "See some data in the output array" << std::endl;
-    for (int y = 100; y < 110; ++y) {
-        for (int x = 0; x < num_frames; ++x) {
-            std::cout << arr_b[x][y] << " ";
-        }
-        std::cout << std::endl;
-    }
-    */
+
+    cairo_destroy(cr);
+    cairo_surface_write_to_png(surface, output_file.c_str());  // Save as PNG
+    cairo_surface_destroy(surface);
 }
 int main(int argc, char *argv[]) {
-    if(argc < 2) {
-        std::cout << "Error: Please add the txt files after the execution command, like ./plot_mel_spec_from_txt <files.txt>" << std::endl;
+    if(argc < 3) {
+        std::cout << "Error: Please add the txt files after the execution command, like ./plot_mel_spec_from_txt <files.txt> <image.png>" << std::endl;
         return 0;
     }
     std::string file_path = argv[1];
     int num_mels = N_MELS;  // Number of Mel bands
     int num_frames = SPEC_WIDTH;  // Number of frames
 
+    std::string dest_image_path = argv[2];
     std::vector<std::vector<float>> mel_spec = read_mel_spectrogram_from_txt(file_path, num_mels, num_frames);
-    std::vector<std::vector<float>> arr_r(num_frames, std::vector<float>(num_mels));
-    std::vector<std::vector<float>> arr_g(num_frames, std::vector<float>(num_mels));
-    std::vector<std::vector<float>> arr_b(num_frames, std::vector<float>(num_mels));
-    plot_mel_spectrogram(mel_spec, arr_r, arr_g, arr_b);
+    plot_mel_spectrogram(mel_spec, dest_image_path);
 
     return 0;
 }
