@@ -185,15 +185,15 @@ std::vector<std::vector<float>> power_to_db(
     float amin = 1e-10f, 
     float top_db = 80.0f
 ) {
-    int num_frames = mel_spec.size();
-    int n_mels = mel_spec[0].size();
+    int n_mels = mel_spec.size();
+    int num_frames = mel_spec[0].size();
 
-    std::vector<std::vector<float>> log_mel_spec(num_frames, std::vector<float>(n_mels));
+    std::vector<std::vector<float>> log_mel_spec(n_mels, std::vector<float>(num_frames));
 
     float max_val = -std::numeric_limits<float>::infinity();
 
-    for (int i = 0; i < num_frames; ++i) {
-        for (int j = 0; j < n_mels; ++j) {
+    for (int i = 0; i < n_mels; ++i) {
+        for (int j = 0; j < num_frames; ++j) {
             float value = std::max(mel_spec[i][j], amin);
             float db = 10.0f * std::log10(value);
             log_mel_spec[i][j] = db;
@@ -204,8 +204,8 @@ std::vector<std::vector<float>> power_to_db(
     }
 
     float lower_bound = max_val - top_db;
-    for (int i = 0; i < num_frames; ++i) {
-        for (int j = 0; j < n_mels; ++j) {
+    for (int i = 0; i < n_mels; ++i) {
+        for (int j = 0; j < num_frames; ++j) {
             log_mel_spec[i][j] = std::max(log_mel_spec[i][j], lower_bound);
         }
     }
