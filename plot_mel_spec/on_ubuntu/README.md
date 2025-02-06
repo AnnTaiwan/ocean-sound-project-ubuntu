@@ -13,3 +13,10 @@ b = viridis[idx][2] / 255;
 * only calculate **RGB value (0-255)**.
 * revised from `plot_mel_spec_from_txt_ver3_for_ocean.cpp`, so it used color map (0-255), too.
 * mel_spec's RGB colors are stored in three 2D arrays: `arr_r`, `arr_g`, `arr_b`. **Each size is (num_frames, num_mels).**
+
+### In 2025/2/6, 
+I change the parameters like `N_MELS`, `AUDIO_LEN`... to meet the requirement of new setting in output mel_image which is 65*64.  
+* Modify file:
+    * `cal_mel_spec_ver4_for_ocean.cpp`
+    * `plot_an_audio.bash`
+    * `plot_mel_spec_from_txt_ver3_for_ocean.cpp`
