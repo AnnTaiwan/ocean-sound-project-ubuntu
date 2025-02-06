@@ -6,13 +6,13 @@
 #include <cmath>
 #include <cairo.h>
 
-#define SAMPLE_RATE 48000
-#define DURATION 60.0
+#define SAMPLE_RATE 22050
+#define DURATION 3.0
 #define AUDIO_LEN (SAMPLE_RATE * DURATION)
-#define N_MELS 512
-#define N_FFT 4096
+#define N_MELS 64
+#define N_FFT 1024
 #define HOP_LEN 1024
-#define SPEC_WIDTH 2813 // (AUDIO_LEN / HOP_LEN + 1)
+#define SPEC_WIDTH (int(AUDIO_LEN / HOP_LEN) + 1)
 #define FMAX (SAMPLE_RATE / 2)
 #define SPEC_SHAPE {SPEC_WIDTH, N_MELS}
 #define CENTER true // used in STFT padded mode
@@ -344,12 +344,21 @@ void plot_mel_spectrogram(const std::vector<std::vector<float>>& mel_spec, const
             normalized_value = std::max(0.0f, std::min(1.0f, normalized_value));
 
             float r, g, b;
+            
             get_color_from_viridis(normalized_value, r, g, b);
+            /*
+            if(y == 0 && x < 5)
+            {
+                std::cout <<"QQQQQQQQQQQQQQQQQQQQQQQ\n";
+                std::cout << r << " " << g << " " << b << "\n";
+            }      
+            */
             cairo_set_source_rgb(cr, r, g, b);
             cairo_rectangle(cr, x, height - y - 1, 1, 1); // Directly fit the data
             cairo_fill(cr);
         }
     }
+    //std::cout <<"##################\n";
 
     cairo_destroy(cr);
     cairo_surface_write_to_png(surface, output_file.c_str());  // Save as PNG
@@ -366,6 +375,14 @@ int main(int argc, char *argv[]) {
 
     std::string dest_image_path = argv[2];
     std::vector<std::vector<float>> mel_spec = read_mel_spectrogram_from_txt(file_path, num_mels, num_frames);
+    std::cout << mel_spec.size() << " " << mel_spec[0].size() << std::endl;
+    /*
+    std::cout << "QQQQQQQQQQQQQQQ\n";
+    for(int t = 0; t < 10; t++){
+      std::cout << mel_spec[t][0] << " ";
+    }
+    std::cout << std::endl;
+    */
     plot_mel_spectrogram(mel_spec, dest_image_path);
 
     return 0;

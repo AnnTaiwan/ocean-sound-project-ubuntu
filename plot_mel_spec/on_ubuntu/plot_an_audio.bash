@@ -16,7 +16,7 @@ for txt_file in "$TXT_FOLDER"/*.txt; do
     txt_filename=$(basename "$txt_file")                  # Get the base name of the txt file
     base_name="${txt_filename%.*}"                        # Remove the .txt extension
     image_name="${base_name}_image.png"                   # Add the _image.png suffix
-    ./plot_mel_spec_from_txt_ver2_for_ocean "$txt_file" "$IMG_FOLDER/$image_name"
+    ./plot_mel_spec_from_txt_ver3_for_ocean "$txt_file" "$IMG_FOLDER/$image_name"
 done
 
 echo "Processing completed. Spectrograms saved in $IMG_FOLDER."

@@ -14,13 +14,13 @@
 #include <numeric>
 #include <limits>
 
-#define SAMPLE_RATE 48000
-#define DURATION 60.0
+#define SAMPLE_RATE 22050
+#define DURATION 3.0
 #define AUDIO_LEN (SAMPLE_RATE * DURATION)
-#define N_MELS 512
-#define N_FFT 4096
+#define N_MELS 64
+#define N_FFT 1024
 #define HOP_LEN 1024
-#define SPEC_WIDTH 2813 // (AUDIO_LEN / HOP_LEN + 1)
+#define SPEC_WIDTH (int(AUDIO_LEN / HOP_LEN) + 1)
 #define FMAX (SAMPLE_RATE / 2)
 #define SPEC_SHAPE {SPEC_WIDTH, N_MELS}
 #define CENTER true // used in STFT padded mode
@@ -378,7 +378,14 @@ static GstFlowReturn new_sample(GstAppSink *appsink, gpointer user_data) {
     while (audio_buffer.size() >= AUDIO_LEN) {
         // Extract 5-second segment from the buffer
         std::vector<float> audio_segment(audio_buffer.begin(), audio_buffer.begin() + AUDIO_LEN);
-
+        
+        /*
+        std::cout << "-------\n";
+	for(int t = 0; t < 10; t++){
+            std::cout << audio_segment[t] << " ";
+	}
+	std::cout << std::endl;
+	*/	
         // Get Mel spectrogram for the current segment
         std::vector<std::vector<float>> mel_spec = get_mel_spectrogram(audio_segment, SAMPLE_RATE);
 
