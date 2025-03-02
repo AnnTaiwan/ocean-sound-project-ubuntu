@@ -8,3 +8,4 @@ gstreamer_src/audio_for_test/*
 *.so
 *.o
 *.zip
+*.tar.gz
