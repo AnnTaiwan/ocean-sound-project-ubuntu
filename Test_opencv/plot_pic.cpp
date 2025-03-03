@@ -3,10 +3,15 @@
 #include <cairo.h>
 #include <string>
 
-const int SPEC_SHAPE[2] = {32, 32};
+const int SPEC_SHAPE[2] = {64, 65};
 
-int main()
+int main(int argc, char **argv)
 {
+    if(argc != 2)
+    {
+        std::cout << "Usage Error: " << argv[0] << " <image.png>\n";
+        return -1;
+    }
     int width = SPEC_SHAPE[1];
     int height = SPEC_SHAPE[0];
     // Create a surface without extra margins
@@ -28,7 +33,7 @@ int main()
             cairo_fill(cr);
         }
     }
-    std::string output_file_path = "image.png";
+    std::string output_file_path = argv[1];
     cairo_destroy(cr);
     cairo_surface_write_to_png(surface, output_file_path.c_str());  // Save as PNG
     cairo_surface_destroy(surface);
