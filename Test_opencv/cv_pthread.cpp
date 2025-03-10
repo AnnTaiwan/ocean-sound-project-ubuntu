@@ -1,9 +1,21 @@
+#include <pthread.h>
 #include <iostream>
 #include <opencv4/opencv2/core.hpp>
 #include <opencv4/opencv2/imgproc.hpp>
 #include <opencv4/opencv2/highgui.hpp>
 #define RESIZE true
 #define IMAGE_SIZE 64
+cv::Mat show_image;
+// the function that thread will do
+void* cv_show(void* arg) {
+    printf("Hello from thread %d!\n", *(int*)arg);
+        // show this image
+    cv::imshow("Image Display", show_image);
+    // wait for any key to stop showing
+    cv::waitKey(3000); //ms
+    cv::destroyWindow("Image Display");
+    return NULL;
+}
 int main(int argc, char **argv)
 {
     if(argc != 2)
@@ -11,6 +23,10 @@ int main(int argc, char **argv)
         std::cout << "Usage Error: " << argv[0] << " <image.png>\n";
         return -1;
     }
+    // thread init
+    pthread_t thread1;  // 定義兩個線程
+    int thread1_id = 1;
+    
     // read image
     std::string image_name = argv[1];
     cv::Mat image = cv::imread(image_name);
@@ -50,16 +66,22 @@ int main(int argc, char **argv)
             }
         }
     }
-    // show this image
-    cv::imshow("Image Display", image);
-    // wait for any key to stop showing
-    cv::waitKey(3000);
-    cv::destroyWindow("Image Display");        
-    std::cout << "HAHAHA" << std::endl;
-    // show this image
-    cv::imshow("Image Display2", image);
-    // wait for any key to stop showing
-    cv::waitKey(3000);
+    show_image = image; // prepare image to show
+    // loop this several times
+    for(int i = 0; i < 1; i++){
+        std::cout << "count : " << i+1 << std::endl;
+        if (pthread_create(&thread1, NULL, cv_show, (void*)&thread1_id)) {
+            fprintf(stderr, "Error creating thread 1\n");
+            return -1;
+        }
+        std::cout << "MIDDLE\n";
+        if (pthread_join(thread1, NULL)) {
+            fprintf(stderr, "Error joining thread 1\n");
+            return -1;
+        }
+        std::cout << "count " << i+1 << " thread finishes\n";
+    }
+    std::cout << "All threads finish.\n";
     return 0;
 }
 
