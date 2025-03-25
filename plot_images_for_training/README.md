@@ -17,8 +17,9 @@ plot_images_for_training(root)/
 │   ├── fish_whale_add_noise20db_CrowdTalking_imgs/  # Final labeled images
 │
 │── src/
-│   ├── plot_dataset.sh       # Shell script for processing audios
-│   └── README.md             # Documentation
+│   └── plot_dataset.sh       # Shell script for processing audios
+│
+└── README.md                 # Documentation
 ```
 
 ## 🚀 How to Use
@@ -50,13 +51,11 @@ Execute the script inside the `src/` directory:
 
 ## 📌 Dependencies
 * Ensure **GStreamer** is installed.  
-* Ensure `GStreamer plugin(.so)` is at the `my-gstreamer-plugins` directory.
-* The `spectrogram` plug used in shell file is the same as the plugin made in`../FINAL_gst-spectrogram_new_plot`. Just remove some output info to let the view cleaner, and the revised version is saved in `FINAL_gst-spectrogram_new_plot_src`.
+* Ensure `GStreamer plugin(.so)` is at the `my-gstreamer-plugins` directory. Remember to set the plugin `PATH`.
+* The `spectrogram` plugin used in shell file is the same as the plugin made in `../FINAL_gst-spectrogram_new_plot`. Just remove some output info to let the view cleaner, and the revised version is saved in `FINAL_gst-spectrogram_new_plot_src`.
 ## 📞 Contact
 For issues or improvements, please open an issue on GitHub.
 
 ---
-
 **Author:** Ann 
 📅 Last Updated: `25 March 2025`
-```
