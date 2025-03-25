@@ -23,7 +23,7 @@ GST_DEBUG_CATEGORY_STATIC(spectrogram_debug);
 #define SPEC_WIDTH (int(SAMPLE_LEN / HOP_LEN) + 1)
 #define FMAX (SAMPLE_RATE / 2)
 #define CENTER true // used in STFT padded mode
-static int count_idx = 0; // number of the image
+static int count_idx = 1; // number of the image
 
 const int SPEC_SHAPE[2] = {N_MELS, SPEC_WIDTH};
 
