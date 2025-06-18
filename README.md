@@ -114,7 +114,25 @@ echo "Processing completed. Spectrograms saved in $IMG_FOLDER."
    - Mel spectrogram text: `spec_txt/audio.txt`
    - Spectrogram image: `images/audio_image.png`
 
+## Final Gstreamer Plugin Version (Run on Ubuntu Linux environment) - 2025/6/18
+1. In `FINAL_gst-spectrogram_new_msg`:
+* Function
+After calculate the mel spec data, it will send the message with mel spec data. Then, the other process will accept the message to do subsequent stuff.
+* Compile the plugin.
+```
+make clean all
+```
+* Move the `spectrogram.so` into **Customed Plugin Folder**.
+* Use `gst-inspect-1.0 spectrogram` to test if plugin(spectrogram) can detected by the gstreamer command.
 
-
-
-
+2. In `FINAL_gst-spectrogram_new_plot`:
+* Function
+After calculate the mel spec data, it will plot each set of data into one image and save it into a folder.
+* Compile the plugin.
+```
+make clean all
+```
+* Move the `spectrogram.so` into **Customed Plugin Folder**.
+* Use `gst-inspect-1.0 spectrogram` to test if plugin(spectrogram) can detected by the gstreamer command.
+3. In `run_*` folder:
+* Real code to use **spectorgram** plugin and receive the message from plugin.
